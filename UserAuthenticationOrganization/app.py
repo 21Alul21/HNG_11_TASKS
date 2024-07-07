@@ -10,8 +10,11 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb'
+# app.config['JWT_SECRET_KEY'] = 'jhbdwbhqwibcqbcqobcqocq'
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 
 
@@ -30,6 +33,14 @@ def user_record(id):
       """
 
       user = User.query.get(id)
+      if not user:
+           return jsonify({
+                         'errors': [
+                              {'field': 'userId',
+                              'message': 'please enter a valid userId'
+                              }
+                         ]     
+                    }), 422
       return jsonify(
            {
                 'status': 'success',
@@ -120,6 +131,14 @@ def single_organisation(orgId):
 
      if request.method == 'GET':
           organisation = Organisation.query.get(orgId)
+          if not organisation:
+               return jsonify({
+                         'errors': [
+                              {'field': 'orgId',
+                              'message': 'invalid orgId'
+                              }
+                         ]     
+                    }), 422
 
           return jsonify({
                'status': 'success',
@@ -136,27 +155,36 @@ def single_organisation(orgId):
 def add_user_organisation(orgId):
      """ view that handles adding a user to a particular organisation """
 
-     userId = request.json.get('userId')
-     if not userId:
+     try:
+          userId = request.json.get('userId')
+          if not userId:
+               return jsonify({
+                    'errors': [
+                              {'field': 'userId',
+                              'message': 'userId field cannot be blank'
+                              }
+                         ] 
+               }), 422
+          
+          user = User.query.get(userId)
+          organisation = Organisation.query.get(orgId)
+
+          # adding the user to the organisation
+          user.organisations.append(organisation)
+          db.session.commit()
+
           return jsonify({
-               'errors': [
-                         {'field': 'userId',
-                         'message': 'userId field cannot be blank'
-                         }
-                    ] 
-          }), 422
-     
-     user = User.query.get(userId)
-     organisation = Organisation.query.get(orgId)
-
-     # adding the user to the organisation
-     user.organisations.append(organisation)
-     db.session.commit()
-
-     return jsonify({
-          'status': 'success',
-          'message': 'User added to organisation successfully' 
-     }), 200
+               'status': 'success',
+               'message': 'User added to organisation successfully' 
+          }), 200
+     except Exception:
+          return jsonify({
+                    'errors': [
+                              {'field': 'userId',
+                              'message': 'invalid userId'
+                              }
+                         ] 
+               }), 422 
 
         
 if __name__ == '__main__':

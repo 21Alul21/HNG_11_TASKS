@@ -17,7 +17,7 @@ def register_user():
     """ view for handling user registeration """
 
     
-    user_info = request.get_json
+    user_info = request.get_json()
    
     if user_info:
         firstName = request.json.get('firstName')
@@ -155,11 +155,11 @@ def register_user():
 
         # creating default organisation register
         name = firstName + 's' + ' Organisation'
-        organisation = Organisation(name=name, description='', orgId=str(uuid.uuid4()))
+        organisation = Organisation(name=name, description='Default Organisation', orgId=str(uuid.uuid4()))
+        
+        user.organisations.append(organisation)
         db.session.add(organisation)
         db.session.commit()
-
-        user.organisations.append(organisation)
 
         return jsonify({
             'status': 'success',
