@@ -3,9 +3,7 @@
 import os
 import datetime
 from flask import Flask, jsonify, request
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
-from models import db, User, Organisation
-import bcrypt
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from auth_blueprint import JWT, auth
 from dotenv import load_dotenv
 
