@@ -154,7 +154,7 @@ def register_user():
         access_token = create_access_token(identity=user.userId)
 
         # creating default organisation register
-        name = firstName + 's' + ' Organisation'
+        name = firstName + ' s' + ' Organisation'
         organisation = Organisation(name=name, description='Default Organisation', orgId=str(uuid.uuid4()))
         
         user.organisations.append(organisation)

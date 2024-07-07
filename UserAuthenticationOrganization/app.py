@@ -12,9 +12,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=15)
+app.config['TESTING'] = True
 
 
 
@@ -199,4 +200,4 @@ def add_user_organisation(orgId):
 
         
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
