@@ -167,7 +167,17 @@ def add_user_organisation(orgId):
                }), 422
           
           user = User.query.get(userId)
+
           organisation = Organisation.query.get(orgId)
+          if not organisation:
+               return jsonify({
+                    'errors': [
+                              {'field': 'orgId',
+                              'message': 'invalid orgId'
+                              }
+                         ] 
+               }), 422
+
 
           # adding the user to the organisation
           user.organisations.append(organisation)
@@ -177,6 +187,7 @@ def add_user_organisation(orgId):
                'status': 'success',
                'message': 'User added to organisation successfully' 
           }), 200
+     
      except Exception:
           return jsonify({
                     'errors': [
