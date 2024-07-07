@@ -148,7 +148,7 @@ def register_user():
         # hashing the user's password
         pw_salt = bcrypt.gensalt()
         hashed_pw = bcrypt.hashpw(password.encode('utf-8'), pw_salt)
-        user = User(firstName=firstName, lastName=lastName, email=email, password=hashed_pw, phone=phone, userId=uuid.uuid4())
+        user = User(firstName=firstName, lastName=lastName, email=email, password=hashed_pw, phone=phone, userId=str(uuid.uuid4()))
         db.session.add(user)
         db.session.commit()
         access_token = create_access_token(identity=user.userId)
