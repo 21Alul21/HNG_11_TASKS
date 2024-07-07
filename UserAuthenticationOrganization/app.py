@@ -1,6 +1,7 @@
 """ module containing the main application instance """
 
 import os
+import datetime
 from flask import Flask, jsonify, request
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from models import db, User, Organisation
@@ -15,6 +16,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb'
 # app.config['JWT_SECRET_KEY'] = 'jhbdwbhqwibcqbcqobcqocq'
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=15)
 
 
 
