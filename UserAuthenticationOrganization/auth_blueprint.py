@@ -155,7 +155,7 @@ def register_user():
 
         # creating default organisation register
         name = firstName + 's' + ' Organisation'
-        organisation = Organisation(name=name, description='')
+        organisation = Organisation(name=name, description='', orgId=str(uuid.uuid4()))
         db.session.add(organisation)
         db.session.commit()
 
@@ -189,8 +189,8 @@ def login_user():
 
      user_info = request.get_json
      if user_info:
-        email = user_info.get('email')
-        password = user_info.get('password')
+        email = request.json.get('email')
+        password = request.json.get('password')
 
         # email validation
         if not email:
@@ -202,7 +202,7 @@ def login_user():
                 ]                
             }), 422
         
-        if '@' and '.' not in email:
+        if not '@' or not '.' in email:
                   return jsonify({
                 'errors': [
                     {'field': 'email',
@@ -233,7 +233,7 @@ def login_user():
                 ]                
             }), 422
         
-        if not password.isalphanumeric():
+        if password.isnumeric():
              return jsonify({
                 'errors': [
                     {'field': 'password',
@@ -242,7 +242,7 @@ def login_user():
                 ]                
             }), 422
         
-        if user and bcrypt.checkpw(user.password, password):
+        if user and bcrypt.checkpw(password.encode('utf-8'), user.password):
               access_token = create_access_token(identity=user.userId)
               return jsonify({
                 'status': 'success',
