@@ -1,10 +1,13 @@
+""" module containing the authentication logic """
+
+import uuid
 from flask import Flask, jsonify, request, Blueprint
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
-from models import db, User, Organization
+from models import db, User, Organisation
 import bcrypt
 from models import db
 
-auth = Blueprint(name='authentication', url_prefix='auth', import_name=__file__)
+auth = Blueprint(name='authentication', url_prefix='/auth', import_name=__file__)
 
 JWT = JWTManager()
 
@@ -12,14 +15,16 @@ JWT = JWTManager()
 @auth.route('/register', methods=['POST'], strict_slashes=False)
 def register_user():
     """ view for handling user registeration """
+
+    
     user_info = request.get_json
    
     if user_info:
-        firstName = user_info.get('firstName')
-        lastName = user_info.get('lastName')
-        email = user_info.get('email')
-        password = user_info.get('password')
-        phone = user_info.get('phone')
+        firstName = request.json.get('firstName')
+        lastName = request.json.get('lastName')
+        email = request.json.get('email')
+        password = request.json.get('password')
+        phone = request.json.get('phone')
 
 
         #validating input fields
@@ -73,7 +78,7 @@ def register_user():
                 ]                
             }), 422
         
-        if '@' and '.' not in email:
+        if '@' not in email or '.' not in email:
                   return jsonify({
                 'errors': [
                     {'field': 'email',
@@ -82,7 +87,7 @@ def register_user():
                 ]                
             }), 422
         
-        existing_email = User.querry.filter_by(email=email).first()
+        existing_email = User.query.filter_by(email=email).first()
         if existing_email:
              return jsonify({
                   'errors': [
@@ -103,7 +108,7 @@ def register_user():
                 ]                
             }), 422
         
-        if not password.isalphanumeric():
+        if password.isnumeric():
              return jsonify({
                 'errors': [
                     {'field': 'password',
@@ -131,7 +136,7 @@ def register_user():
                 ]                
             }), 422
                   
-        if phone.isalphanumeric():
+        if not phone.isnumeric():
              return jsonify({
                 'errors': [
                     {'field': 'phone',
@@ -143,16 +148,18 @@ def register_user():
         # hashing the user's password
         pw_salt = bcrypt.gensalt()
         hashed_pw = bcrypt.hashpw(password.encode('utf-8'), pw_salt)
-        user = User(firstName=firstName, lastName=lastName, email=email, password=hashed_pw, phone=phone)
+        user = User(firstName=firstName, lastName=lastName, email=email, password=hashed_pw, phone=phone, userId=uuid.uuid4())
         db.session.add(user)
         db.session.commit()
         access_token = create_access_token(identity=user.userId)
 
-        # creating default organization register
-        name = firstName + 's' + ' Organization'
-        organization = Organization(orgId=user.userId, name=name, description='')
-        db.session.add(organization)
+        # creating default organisation register
+        name = firstName + 's' + ' Organisation'
+        organisation = Organisation(name=name, description='')
+        db.session.add(organisation)
         db.session.commit()
+
+        user.organisations.append(organisation)
 
         return jsonify({
             'status': 'success',
@@ -177,7 +184,6 @@ def register_user():
 
 
 @auth.route('/login', methods=['POST'], strict_slashes=False)
-@jwt_required
 def login_user():
      """ view function that handles user login """
 
@@ -205,7 +211,7 @@ def login_user():
                 ]                
             }), 422
         
-        user = User.querry.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
              
         if not user.email:
              return jsonify({

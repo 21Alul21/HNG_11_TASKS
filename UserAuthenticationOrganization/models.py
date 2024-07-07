@@ -7,9 +7,9 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-user_organization = db.Table('user_organization',
+user_organisation = db.Table('user_organisation',
     db.Column('user_id', db.String, db.ForeignKey('user.userId'), primary_key=True),
-    db.Column('organization_id', db.String, db.ForeignKey('organization.orgId'), primary_key=True)
+    db.Column('organisation_id', db.String, db.ForeignKey('organisation.orgId'), primary_key=True)
 )
 
 class User(db.Model):
@@ -19,10 +19,17 @@ class User(db.Model):
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     phone = db.Column(db.String)
-    organizations = db.relationship('Organization', secondary=user_organization, lazy='subquery',\
+    organisations = db.relationship('Organisation', secondary=user_organisation, lazy='subquery',\
                                     backref=db.backref('users', lazy=True))
+    def __repr__(self):
+        return f'{self.userId} {self.firstName} {self.lastName}'
 
-class Organization(db.Model):
+class Organisation(db.Model):
     orgId = db.Column(db.String, unique=True, primary_key=True) 
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
+
+    def __repr__(self):
+        return f'{self.orgId} {self.name} {self.description}'
+
+    
