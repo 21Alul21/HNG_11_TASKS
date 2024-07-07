@@ -12,10 +12,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=15)
 app.config['TESTING'] = True
+app.config['SQLALCHEMY_ECHO'] = True
+
 
 
 
@@ -198,6 +200,11 @@ def add_user_organisation(orgId):
                          ] 
                }), 422 
 
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user), 200
         
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
