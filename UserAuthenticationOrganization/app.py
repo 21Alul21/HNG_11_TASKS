@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] =  "postgres://default:bVB2SlNMRz4i@ep-ancient-queen-a22bbngx.eu-central-1.aws.neon.tech:5432/verceldb?sslmode=require" #os.getenv('DATABASE_URI')
+app.config['JWT_SECRET_KEY'] = 'efgelkgnelngelngengle' #os.getenv('JWT_SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=15)
 app.config['TESTING'] = True
 app.config['SQLALCHEMY_ECHO'] = True
